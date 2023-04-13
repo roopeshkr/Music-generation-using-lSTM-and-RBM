@@ -81,7 +81,7 @@ for e in range(epoch):
         loss = rbm.forward(x, K)
         loss.backward()
         optimizer.step()
-        loss_epoch += loss.float()
+        loss_epoch += loss.float() / num_data
     loss_epoch /= num_data
     print("Finished epoch {}, loss {}".format(e+1, loss_epoch))
 
