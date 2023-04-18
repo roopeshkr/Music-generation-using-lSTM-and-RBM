@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-class Model(nn.Module):
+class MusicGenerationModel(nn.Module):
     def __init__(self, num_notes, num_duration, num_hidden, num_hidden_v, num_hidden_u):
-        super(Model, self).__init__()
+        super(MusicGenerationModel, self).__init__()
         self.nv = num_notes
         self.nu = num_duration
         self.nh = num_hidden

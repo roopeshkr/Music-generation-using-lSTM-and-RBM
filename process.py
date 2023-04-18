@@ -114,6 +114,11 @@ def read_midi(path='data/midi'):
     with open('data/data.pkl', 'wb') as f:
         pickle.dump((pitch, duration), f)
 
-start_time = time.time()
-read_midi('data/midi')
-print("Finished in {:.5f} seconds".format(time.time() - start_time))
+def main():
+    start_time = time.time()
+    read_midi('data/midi')
+    print("Finished in {:.5f} seconds".format(time.time() - start_time))
+
+
+if __name__ == '__main__':
+    main()
