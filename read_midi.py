@@ -1,7 +1,7 @@
 import os
 import time
 import torch
-from music21 
+import music21
 import numpy as np
 import pickle
 
