@@ -4,6 +4,7 @@ import torch
 import music21
 import numpy as np
 import pickle
+from tqdm import tqdm
 
 
 def reduce(vector, high, low):
@@ -51,7 +52,8 @@ def read_midi(path='data/midi'):
     # environment.UserSettings()['lilypondPath'] = 'C:/Program Files (x86)/LilyPond/usr/bin/lilypond.exe'
     all_songs, all_keys, all_durations, all_notes = [], [], [], []
     # Get all songs in list all_songs
-    for o in os.listdir(path):
+    print('Parsing...')
+    for o in tqdm(os.listdir(path)):
         file = os.path.join(path, o)
         print("Parsing {}".format(file))
         s = music21.converter.parse(file)
@@ -60,7 +62,8 @@ def read_midi(path='data/midi'):
 
     # Preprocess all_songs to get the encodings for all durations and the corresponding table.
     # Also the highest and lowest pitch
-    for i, song in enumerate(all_songs):
+    print('Preprocessing...')
+    for i, song in tqdm(enumerate(all_songs)):
         all_keys.append(str(song.analyze('key')))
         for p in song:
             # print(type(p.duration.quarterLength))
@@ -71,7 +74,7 @@ def read_midi(path='data/midi'):
                 all_durations.append(p.duration.quarterLength)
                 for n in p.pitches:
                     all_notes.append(n.midi)
-            elif isinstance(p, music21.note.Rest)
+            elif isinstance(p, music21.note.Rest):
                 all_durations.append(p.duration.quarterLength)
         print(str(i))
 
@@ -84,7 +87,8 @@ def read_midi(path='data/midi'):
    # Process each song and turn notes into many-hot vectors
     pitch = []
     duration = []
-    for i, s in enumerate(all_songs) :
+    print('Encoding...')
+    for i, s in tqdm(enumerate(all_songs)):
         # Get melody, duration, and offset for each song
         v, u = [], []
         for p in s:
