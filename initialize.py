@@ -77,7 +77,10 @@ def main():
                         help="Learning rate")
     parser.add_argument("-k", "--sample_step", type=int, default=25,
                         help="Number of rounds for Gibbs sampling")
-    parser.add_argument("--device", type=str, default="cpu", help="The device to use in training")
+    parser.add_argument("--data_path", type=str, default="data",
+                        help="Path to saved data")
+    parser.add_argument("--device", type=str, default='cpu',
+                        help="Device")
     args = parser.parse_args()
 
     num_hidden = args.num_hidden
@@ -90,6 +93,7 @@ def main():
         print("{}: {}".format(arg, getattr(args, arg)))
 
     rbm = RBM(num_pitch, num_hidden)
+    rbm = rbm.to(args.device)
     optimizer = optim.AdamW(rbm.parameters(), lr=learning_rate)
 
 
@@ -98,8 +102,9 @@ def main():
         loss_epoch = 0
         for song in pitch:
             optimizer.zero_grad()
-            x = song.clone().detach().float()
-            loss = rbm.forward(x, K)
+            x = song.float().clone().detach().to(args.device)
+
+            loss = rbm(x, K)
             loss.backward()
             optimizer.step()
             loss_epoch += loss.float() / num_data
@@ -111,10 +116,9 @@ def main():
     model.bh = nn.Parameter(rbm.bh.clone().detach().float())
     model.bv = nn.Parameter(rbm.bv.clone().detach().float())
 
-    model.to(args.device)
+    model = model.to(args.device)
 
-    with open('data/model.pkl', 'wb') as f:
-        pickle.dump(model, f)
+    torch.save(model, args.data_path + '/model.pth')
 
     print("Finished in {:.5f} seconds".format(time.time() - starttime))
 
