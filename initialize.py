@@ -51,10 +51,7 @@ class RBM(nn.Module):
         return (cost / T)
 
 starttime = time.time()
-with open('data/pitch.pkl', 'rb') as f:
-    pitch = pickle.load(f)
-with open('data/duration.pkl', 'rb') as f:
-    duration = pickle.load(f)
+
 with open('data/data.pkl', 'rb') as f:
     (pitch, duration) = pickle.load(f)
 
@@ -107,7 +104,7 @@ for e in range(epoch):
         optimizer.step()
         loss_epoch += loss.float() / num_data
     loss_epoch /= num_data
-    print("Finished epoch {}, loss {}".format(e+1, loss_epoch))
+    print("Finished epoch {}, loss {:.5f}".format(e+1, loss_epoch))
 
 model = Model(num_pitch, num_duration, num_hidden, num_hidden_v, num_hidden_u)
 
