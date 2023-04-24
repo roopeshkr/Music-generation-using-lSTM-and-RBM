@@ -23,7 +23,6 @@ def get_chord(v, d, low, dec):
     du = dec[d_i]
     v = enlarge(v, low)
     notes = list(map(lambda x: x[0], filter(lambda x: x[1] == 1, enumerate(v))))
-    
     if len(notes) > 0:
         c = music21.chord.Chord(notes, duration=music21.duration.Duration(du))
     else:
@@ -32,17 +31,16 @@ def get_chord(v, d, low, dec):
 
 
 def turn_midi(pitch, duration, low, dec, filename, out_tempo=75.0):
-    song = music21.Stream()
+    song = music21.stream.Stream()
     for t in range(len(pitch)):
         song.append(get_chord(pitch[t], duration[t], low, dec))
     song.append(music21.tempo.MetronomeMark(number=out_tempo))
     fmt = os.path.splitext(filename)[-1].lower()
     song.write(fmt, filename)
 
+
 def main():
     starttime = time.time()
-
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-k", "--sample_step", type=int, default=10,
                         help="Number of rounds for Gibbs sampling")
@@ -64,6 +62,7 @@ def main():
         (pitch, duration) = pickle.load(f)
     with open(args.data_path + '/param.pkl', 'rb') as f:
         (low, dec, dis_v, dis_u) = pickle.load(f)
+
     for arg in vars(args):
         print("{}: {}".format(arg, getattr(args, arg)))
 

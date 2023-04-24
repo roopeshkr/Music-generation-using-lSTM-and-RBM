@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+
 class MusicGenerationModel(nn.Module):
     def __init__(self, num_notes, num_duration, num_hidden, num_hidden_v, num_hidden_u):
         super(MusicGenerationModel, self).__init__()
@@ -12,7 +13,7 @@ class MusicGenerationModel(nn.Module):
         self.nvu = self.nv + self.nu
 
         # trainable variables
-        self.w = nn.Parameter(torch.zeros(self.nh, self.nv)) # RBM parameters
+        self.w = nn.Parameter(torch.zeros(self.nh, self.nv))  # RBM parameters
         self.wh = nn.Parameter(torch.zeros(self.nh, self.nhv))
         self.wv = nn.Parameter(torch.zeros(self.nv, self.nhv))
         self.bv = nn.Parameter(torch.zeros(self.nv))
@@ -29,12 +30,12 @@ class MusicGenerationModel(nn.Module):
         self.softmax = nn.Softmax(dim=0)
 
         # Initial states and cells of LSTM
-        self.hv0 = nn.Parameter(torch.zeros(self.nhv))  # Initial state of LSTM
-        self.cv0 = nn.Parameter(torch.zeros(self.nhv))  # Initial cell of LSTM
+        self.hv0 = nn.Parameter(torch.zeros(self.nhv))
+        self.cv0 = nn.Parameter(torch.zeros(self.nhv))
         self.hu0 = nn.Parameter(torch.zeros(self.nhu))
         self.cu0 = nn.Parameter(torch.zeros(self.nhu))
 
-        self.num_epoch = 0  # to memorize the number of epochs trained
+        self.num_epoch = 0  # Memorize the number of epochs trained
 
     def sample_h(self, v, bh):
         activation = bh + torch.matmul(self.w, v)
@@ -52,7 +53,7 @@ class MusicGenerationModel(nn.Module):
         for i in range(k):
             hp, hs = self.sample_h(vs, bh)
             vp, vs = self.sample_v(hs, bv)
-        return vp, vs.clone().detach() # Detach so back-propagation does not compute the gradient
+        return vp, vs.clone().detach()  # Detach so back-propagation does not compute the gradient
 
     def free_energy_cost(self, v, bh, bv, k):
         def F(v_):
@@ -75,7 +76,6 @@ class MusicGenerationModel(nn.Module):
             hu, cu = self.lstmu(vu.view(1, self.nvu), (hu.view(1, self.nhu), cu.view(1, self.nhu)))
             hv, cv, hu, cu = hv.view(self.nhv), cv.view(self.nhv), hu.view(self.nhu), cu.view(self.nhu)
             v_o, cst = self.free_energy_cost(v, bh_t, bv_t, k)
-            # u_o = self.softmax(self.linear(hu))
             u_o = self.softmax(torch.matmul(self.whz, hu.t()) + torch.matmul(self.wvz, x[t].t()) + self.bz)
             cost += cst
             x_o.append(v_o)
@@ -87,7 +87,7 @@ class MusicGenerationModel(nn.Module):
         v, u = v0, d0
         hv, cv, hu, cu = self.hv0, self.cv0, self.hu0, self.cu0  # Set the initial parameters
         for t in range(max_time):
-            vu = torch.cat((v, u), 0) # Concatenate the inputs
+            vu = torch.cat((v, u), 0)  # Concatenate the inputs
             bh_t = self.bh + torch.matmul(self.wh, hv)
             bv_t = self.bv + torch.matmul(self.wv, hv)
             hv, cv = self.lstmv(vu.view(1, self.nvu), (hv.view(1, self.nhv), cv.view(1, self.nhv)))
@@ -98,13 +98,16 @@ class MusicGenerationModel(nn.Module):
             pitch.append(v)
             duration.append(u)
             prob.append(vp)
+
         # The duration is probability, need to convert to one-hot vector using argmax
         duration = torch.stack(duration)
         am = torch.argmax(duration, dim=1)
         duration = torch.zeros_like(duration)
         for i, j in enumerate(am):
             duration[i][j] = 1
+
         # Detach so the output can be visualized
         pitch = torch.stack(pitch).clone().detach()
         prob = torch.stack(prob).clone().detach()
+
         return pitch, duration, prob

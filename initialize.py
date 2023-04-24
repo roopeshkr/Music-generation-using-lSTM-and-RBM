@@ -1,7 +1,7 @@
-import pickle
 import time
-import torch
+import pickle
 import argparse
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from model import MusicGenerationModel
@@ -49,6 +49,7 @@ class RBM(nn.Module):
             v_o, c = self.free_energy_cost(v, K)
             cost += c
         return (cost / T)
+
 
 def main():
     starttime = time.time()

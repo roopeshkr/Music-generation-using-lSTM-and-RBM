@@ -1,6 +1,6 @@
+import os
 import time
 import pickle
-import os
 import argparse
 import torch
 import torch.nn as nn
@@ -45,7 +45,7 @@ def main():
     parser.add_argument("--device", type=str, default='cpu',
                         help="Device")
     args = parser.parse_args()
-    
+
     # Load dataset
     with open('data/data.pkl', 'rb') as f:
         (pitch, duration) = pickle.load(f)
@@ -68,16 +68,6 @@ def main():
     print("num_hidden_v: {}".format(num_hidden_v))
     print("num_hidden_u: {}".format(num_hidden_u))
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--num_epoch", type=int, default=100,
-                        help="Number of epochs")
-    parser.add_argument("-r", "--learning_rate", type=float, default=1e-3,
-                        help="Learning rate")
-    parser.add_argument("-k", "--sample_step", type=int, default=25,
-                        help="Number of rounds for Gibbs sampling")
-    parser.add_argument("-s", "--save_for_every", type=int, default=5,
-                        help="Number of epochs to save the model")
-    args = parser.parse_args()
 
     for arg in vars(args):
         print("{}: {}".format(arg, getattr(args, arg)))
